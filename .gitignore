@@ -28,3 +28,10 @@
 
 # User-specified configuration
 /user.bazelrc
+
+# Hedron's Compile Commands Extractor for Bazel — User Interface
+compile_commands.json
+external
+
+# clangd
+.cache
