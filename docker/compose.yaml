@@ -1,0 +1,47 @@
+services:
+  drake:
+    build:
+      args:
+        BASE_IMAGE: ubuntu:24.04
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: drake
+    container_name: drake
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [compute, utility, graphics, display, gpu]
+    runtime: nvidia
+    environment:
+      DISPLAY: ${DISPLAY}
+      HOME: ${HOME}
+      NVIDIA_VISIBLE_DEVICES: all
+      QT_XKB_CONFIG_ROOT: /usr/share/X11/xkb
+    cap_add:
+      - SYS_ADMIN  # for fuse mounting
+      - SYS_PTRACE # for core dumps
+    devices:
+      - "/dev/fuse:/dev/fuse"
+      - "/dev/dri/card0:/dev/dri/card0"
+    ulimits:
+      core: -1  # for unlimited
+    security_opt:
+      - apparmor:unconfined
+      - seccomp:unconfined  # for gdb
+    working_dir: ${HOME}/dev/drake
+    privileged: true
+    tty: true
+    volumes:
+      # for graphics
+      - /tmp/.X11-unix/:/tmp/.X11-unix/
+      # docker out of docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # bazel cache
+      - ${HOME}/.cache:${HOME}/.cache
+      # mount repo
+      - ..:${HOME}/dev/drake
+    command: tail -F anything
+    network_mode: host
