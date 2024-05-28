@@ -1,0 +1,68 @@
+load("//tools/lint:lint.bzl", "add_lint_tests")
+load(
+    "//tools/skylark:drake_cc.bzl",
+    "drake_cc_binary",
+    "drake_cc_library",
+)
+
+package(default_visibility = ["//visibility:private"])
+
+drake_cc_library(
+    name = "glider",
+    srcs = [
+        "glider.cc",
+    ],
+    hdrs = [
+        "glider.h",
+    ],
+    deps = [
+        ":glider_params",
+        "//common:essential",
+        "//systems/framework:leaf_system",
+    ],
+)
+
+drake_cc_library(
+    name = "glider_geometry",
+    srcs = ["glider_geometry.cc"],
+    hdrs = ["glider_geometry.h"],
+    deps = [
+        ":glider",
+        ":glider_params",
+        "//geometry:geometry_roles",
+        "//geometry:scene_graph",
+        "//math:geometric_transform",
+        "//systems/framework:diagram_builder",
+        "//systems/framework:leaf_system",
+    ],
+)
+
+drake_cc_library(
+    name = "glider_params",
+    srcs = ["glider_params.cc"],
+    hdrs = ["glider_params.h"],
+    deps = [
+        "//common:dummy_value",
+        "//common:essential",
+        "//common:name_value",
+        "//common/symbolic:expression",
+        "//systems/framework:vector",
+    ],
+)
+
+drake_cc_binary(
+    name = "run_glider",
+    srcs = [
+        "run_glider.cc",
+    ],
+    deps = [
+        ":glider",
+        ":glider_geometry",
+        "//common:add_text_logging_gflags",
+        "//geometry:meshcat_visualizer",
+        "//systems/analysis:simulator_gflags",
+        "//systems/framework:diagram",
+    ],
+)
+
+add_lint_tests(enable_clang_format_lint = False)
