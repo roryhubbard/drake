@@ -15,15 +15,15 @@ namespace glider {
 
 using Eigen::Vector3d;
 using Eigen::Vector4d;
-const ClothSpringModelGeometry& ClothSpringModelGeometry::AddToBuilder(
+const GliderGeometry& GliderGeometry::AddToBuilder(
     systems::DiagramBuilder<double>* builder,
-    const ClothSpringModel<double>& glider,
+    const Glider<double>& glider,
     geometry::SceneGraph<double>* scene_graph) {
   DRAKE_THROW_UNLESS(builder != nullptr);
   DRAKE_THROW_UNLESS(scene_graph != nullptr);
 
   auto glider_geometry = builder->AddSystem(
-      std::unique_ptr<ClothSpringModelGeometry>(new ClothSpringModelGeometry(
+      std::unique_ptr<GliderGeometry>(new GliderGeometry(
           scene_graph, glider.num_particles(),
           glider.h())));
   builder->Connect(glider.get_output_port(0),
@@ -35,7 +35,7 @@ const ClothSpringModelGeometry& ClothSpringModelGeometry::AddToBuilder(
   return *glider_geometry;
 }
 
-ClothSpringModelGeometry::ClothSpringModelGeometry(
+GliderGeometry::GliderGeometry(
     geometry::SceneGraph<double>* scene_graph, int num_particles, double h)
     : num_particles_(num_particles),
       // We set particle radius to be 80% of the gap between particles for
@@ -47,7 +47,7 @@ ClothSpringModelGeometry::ClothSpringModelGeometry(
   this->DeclareInputPort("particle_positions", systems::kVectorValued,
                          num_particles * 3);
   this->DeclareAbstractOutputPort(
-      "geometry_pose", &ClothSpringModelGeometry::OutputGeometryPose);
+      "geometry_pose", &GliderGeometry::OutputGeometryPose);
 
   frame_ids_.resize(num_particles);
   for (int i = 0; i < num_particles; ++i) {
@@ -66,7 +66,7 @@ ClothSpringModelGeometry::ClothSpringModelGeometry(
   }
 }
 
-void ClothSpringModelGeometry::OutputGeometryPose(
+void GliderGeometry::OutputGeometryPose(
     const systems::Context<double>& context,
     geometry::FramePoseVector<double>* poses) const {
   for (int i = 0; i < num_particles_; ++i) {

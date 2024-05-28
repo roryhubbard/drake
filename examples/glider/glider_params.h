@@ -25,8 +25,8 @@ namespace drake {
 namespace examples {
 namespace glider {
 
-/// Describes the row indices of a ClothSpringModelParams.
-struct ClothSpringModelParamsIndices {
+/// Describes the row indices of a GliderParams.
+struct GliderParamsIndices {
   /// The total number of rows (coordinates).
   static const int kNumCoordinates = 4;
 
@@ -38,24 +38,24 @@ struct ClothSpringModelParamsIndices {
 
   /// Returns a vector containing the names of each coordinate within this
   /// class. The indices within the returned vector matches that of this class.
-  /// In other words, `ClothSpringModelParamsIndices::GetCoordinateNames()[i]`
+  /// In other words, `GliderParamsIndices::GetCoordinateNames()[i]`
   /// is the name for `BasicVector::GetAtIndex(i)`.
   static const std::vector<std::string>& GetCoordinateNames();
 };
 
 /// Specializes BasicVector with specific getters and setters.
 template <typename T>
-class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
+class GliderParams final : public drake::systems::BasicVector<T> {
  public:
   /// An abbreviation for our row index constants.
-  typedef ClothSpringModelParamsIndices K;
+  typedef GliderParamsIndices K;
 
   /// Default constructor.  Sets all rows to their default value:
   /// @arg @c mass defaults to 1.0 kg.
   /// @arg @c k defaults to 100.0 N/m.
   /// @arg @c d defaults to 10 Ns/m.
   /// @arg @c gravity defaults to -9.81 m/s^2.
-  ClothSpringModelParams()
+  GliderParams()
       : drake::systems::BasicVector<T>(K::kNumCoordinates) {
     this->set_mass(1.0);
     this->set_k(100.0);
@@ -68,15 +68,15 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  ClothSpringModelParams(const ClothSpringModelParams& other)
+  GliderParams(const GliderParams& other)
       : drake::systems::BasicVector<T>(other.values()) {}
-  ClothSpringModelParams(ClothSpringModelParams&& other) noexcept
+  GliderParams(GliderParams&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
-  ClothSpringModelParams& operator=(const ClothSpringModelParams& other) {
+  GliderParams& operator=(const GliderParams& other) {
     this->values() = other.values();
     return *this;
   }
-  ClothSpringModelParams& operator=(ClothSpringModelParams&& other) noexcept {
+  GliderParams& operator=(GliderParams&& other) noexcept {
     this->values() = std::move(other.values());
     other.values().resize(0);
     return *this;
@@ -94,8 +94,8 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
     this->set_gravity(symbolic::Variable("gravity"));
   }
 
-  [[nodiscard]] ClothSpringModelParams<T>* DoClone() const final {
-    return new ClothSpringModelParams;
+  [[nodiscard]] GliderParams<T>* DoClone() const final {
+    return new GliderParams;
   }
 
   /// @name Getters and Setters
@@ -114,8 +114,8 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   }
   /// Fluent setter that matches mass().
   /// Returns a copy of `this` with mass set to a new value.
-  [[nodiscard]] ClothSpringModelParams<T> with_mass(const T& mass) const {
-    ClothSpringModelParams<T> result(*this);
+  [[nodiscard]] GliderParams<T> with_mass(const T& mass) const {
+    GliderParams<T> result(*this);
     result.set_mass(mass);
     return result;
   }
@@ -133,8 +133,8 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   }
   /// Fluent setter that matches k().
   /// Returns a copy of `this` with k set to a new value.
-  [[nodiscard]] ClothSpringModelParams<T> with_k(const T& k) const {
-    ClothSpringModelParams<T> result(*this);
+  [[nodiscard]] GliderParams<T> with_k(const T& k) const {
+    GliderParams<T> result(*this);
     result.set_k(k);
     return result;
   }
@@ -152,8 +152,8 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   }
   /// Fluent setter that matches d().
   /// Returns a copy of `this` with d set to a new value.
-  [[nodiscard]] ClothSpringModelParams<T> with_d(const T& d) const {
-    ClothSpringModelParams<T> result(*this);
+  [[nodiscard]] GliderParams<T> with_d(const T& d) const {
+    GliderParams<T> result(*this);
     result.set_d(d);
     return result;
   }
@@ -171,8 +171,8 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   }
   /// Fluent setter that matches gravity().
   /// Returns a copy of `this` with gravity set to a new value.
-  [[nodiscard]] ClothSpringModelParams<T> with_gravity(const T& gravity) const {
-    ClothSpringModelParams<T> result(*this);
+  [[nodiscard]] GliderParams<T> with_gravity(const T& gravity) const {
+    GliderParams<T> result(*this);
     result.set_gravity(gravity);
     return result;
   }
@@ -193,9 +193,9 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
     a->Visit(drake::MakeNameValue("gravity", &gravity_ref));
   }
 
-  /// See ClothSpringModelParamsIndices::GetCoordinateNames().
+  /// See GliderParamsIndices::GetCoordinateNames().
   static const std::vector<std::string>& GetCoordinateNames() {
-    return ClothSpringModelParamsIndices::GetCoordinateNames();
+    return GliderParamsIndices::GetCoordinateNames();
   }
 
   /// Returns whether the current values of this vector are well-formed.
@@ -228,7 +228,7 @@ class ClothSpringModelParams final : public drake::systems::BasicVector<T> {
   void ThrowIfEmpty() const {
     if (this->values().size() == 0) {
       throw std::out_of_range(
-          "The ClothSpringModelParams vector has been moved-from; "
+          "The GliderParams vector has been moved-from; "
           "accessor methods may no longer be used");
     }
   }

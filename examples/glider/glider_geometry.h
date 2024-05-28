@@ -10,11 +10,11 @@ namespace drake {
 namespace examples {
 namespace glider {
 
-/** Expresses a ClothSpringModel's visualization geometry to a SceneGraph. This
- visualization takes the particle_positions output from ClothSpringModel.
+/** Expresses a Glider's visualization geometry to a SceneGraph. This
+ visualization takes the particle_positions output from Glider.
 
  @system
- name: ClothSpringModelGeometry
+ name: GliderGeometry
  input_ports:
  - particle_positions
  output_ports:
@@ -27,28 +27,28 @@ namespace glider {
  This class has no public constructor; instead use the AddToBuilder() static
  method to create and add it to a DiagramBuilder directly.
  */
-class ClothSpringModelGeometry final : public systems::LeafSystem<double> {
+class GliderGeometry final : public systems::LeafSystem<double> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ClothSpringModelGeometry);
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(GliderGeometry);
 
-  /** Creates, adds, and connects a ClothSpringModelGeometry system into the
+  /** Creates, adds, and connects a GliderGeometry system into the
    given `builder`.  Both the `glider` and `scene_graph` systems
    must have been added to the given `builder` already.
 
-   The `scene_graph` pointer is not retained by the %ClothSpringModelGeometry
+   The `scene_graph` pointer is not retained by the %GliderGeometry
    system. The return value pointer is an alias of the new
-   %ClothSpringModelGeometry system that is owned by the `builder`.
+   %GliderGeometry system that is owned by the `builder`.
 
    @throws std::exception if @p glider or @p scene_graph is not
    already added to the given @p builder.
    */
-  static const ClothSpringModelGeometry& AddToBuilder(
+  static const GliderGeometry& AddToBuilder(
       systems::DiagramBuilder<double>* builder,
-      const ClothSpringModel<double>& glider,
+      const Glider<double>& glider,
       geometry::SceneGraph<double>* scene_graph);
 
  private:
-  ClothSpringModelGeometry(geometry::SceneGraph<double>* scene_graph,
+  GliderGeometry(geometry::SceneGraph<double>* scene_graph,
                            int num_particles, double h);
   void OutputGeometryPose(const systems::Context<double>&,
                           geometry::FramePoseVector<double>*) const;

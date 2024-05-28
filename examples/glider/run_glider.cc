@@ -34,10 +34,10 @@ namespace {
 
 int DoMain() {
   systems::DiagramBuilder<double> builder;
-  auto* glider = builder.AddSystem<ClothSpringModel<double>>(
+  auto* glider = builder.AddSystem<Glider<double>>(
       FLAGS_nx, FLAGS_ny, FLAGS_h, FLAGS_dt);
   auto* scene_graph = builder.AddSystem<geometry::SceneGraph>();
-  ClothSpringModelGeometry::AddToBuilder(&builder, *glider,
+  GliderGeometry::AddToBuilder(&builder, *glider,
                                          scene_graph);
   geometry::MeshcatVisualizerd::AddToBuilder(
       &builder, *scene_graph, std::make_shared<geometry::Meshcat>());
