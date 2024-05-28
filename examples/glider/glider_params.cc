@@ -4,14 +4,14 @@ namespace drake {
 namespace examples {
 namespace glider {
 
-const int ClothSpringModelParamsIndices::kNumCoordinates;
-const int ClothSpringModelParamsIndices::kMass;
-const int ClothSpringModelParamsIndices::kK;
-const int ClothSpringModelParamsIndices::kD;
-const int ClothSpringModelParamsIndices::kGravity;
+const int GliderParamsIndices::kNumCoordinates;
+const int GliderParamsIndices::kMass;
+const int GliderParamsIndices::kK;
+const int GliderParamsIndices::kD;
+const int GliderParamsIndices::kGravity;
 
 const std::vector<std::string>&
-ClothSpringModelParamsIndices::GetCoordinateNames() {
+GliderParamsIndices::GetCoordinateNames() {
   static const drake::never_destroyed<std::vector<std::string>> coordinates(
       std::vector<std::string>{
           "mass",

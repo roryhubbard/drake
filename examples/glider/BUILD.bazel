@@ -17,6 +17,7 @@ drake_cc_library(
     ],
     deps = [
         ":glider_params",
+        ":glider_state",
         "//common:essential",
         "//systems/framework:leaf_system",
     ],
@@ -29,6 +30,7 @@ drake_cc_library(
     deps = [
         ":glider",
         ":glider_params",
+        "//common:default_scalars",
         "//geometry:geometry_roles",
         "//geometry:scene_graph",
         "//math:geometric_transform",
@@ -41,6 +43,22 @@ drake_cc_library(
     name = "glider_params",
     srcs = ["glider_params.cc"],
     hdrs = ["glider_params.h"],
+    deps = [
+        "//common:dummy_value",
+        "//common:essential",
+        "//common:name_value",
+        "//common/symbolic:expression",
+        "//systems/framework:vector",
+    ],
+)
+
+drake_cc_library(
+    name = "glider_state",
+    srcs = ["glider_state.cc"],
+    hdrs = [
+        "glider_state.h",
+    ],
+    visibility = ["//visibility:public"],
     deps = [
         "//common:dummy_value",
         "//common:essential",
