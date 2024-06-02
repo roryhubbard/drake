@@ -12,7 +12,7 @@ up:
 
 .PHONY: enter
 enter:
-	docker compose -f docker/compose.yaml exec --interactive --tty drake bash
+	docker compose -f docker/compose.yaml exec --user ${USER} --interactive --tty drake bash
 
 .PHONY: down
 down:

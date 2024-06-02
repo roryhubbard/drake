@@ -1,5 +1,6 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
+RUN userdel -r ubuntu
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -30,6 +31,7 @@ RUN apt-get update \
     docker-buildx-plugin \
     docker-compose-plugin \
     systemd-coredump \
+    sudo \
     && apt-get autoremove \
     && apt-get clean
 
@@ -60,8 +62,5 @@ RUN apt-get update \
     python3-clang \
     && apt-get autoremove \
     && apt-get clean
-
-## python libs like to call python directly
-RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 CMD [ "/bin/bash" ]
