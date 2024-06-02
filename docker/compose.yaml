@@ -7,6 +7,7 @@ services:
       dockerfile: docker/Dockerfile
     image: drake
     container_name: drake
+    platform: linux/amd64
     deploy:
       resources:
         reservations:
@@ -43,5 +44,5 @@ services:
       - ${HOME}/.cache:${HOME}/.cache
       # mount repo
       - ..:${HOME}/dev/drake
-    command: tail -F anything
+    command: docker/mount_perms.sh $USER
     network_mode: host
