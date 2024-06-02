@@ -1,5 +1,7 @@
 export SHELL:=/bin/bash
 
+export REPO_ROOT := $(shell pwd)
+
 all: build test compile-commands
 
 .PHONY: build-image
