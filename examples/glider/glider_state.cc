@@ -1,26 +1,19 @@
-#include "drake/examples/acrobot/acrobot_state.h"
+#include "drake/examples/glider/glider_state.h"
 
-namespace drake {
-namespace examples {
-namespace acrobot {
+namespace drake::examples::glider {
 
-const int AcrobotStateIndices::kNumCoordinates;
-const int AcrobotStateIndices::kTheta1;
-const int AcrobotStateIndices::kTheta2;
-const int AcrobotStateIndices::kTheta1dot;
-const int AcrobotStateIndices::kTheta2dot;
-
-const std::vector<std::string>& AcrobotStateIndices::GetCoordinateNames() {
+const std::vector<std::string>& GliderStateIndices::GetCoordinateNames() {
   static const drake::never_destroyed<std::vector<std::string>> coordinates(
       std::vector<std::string>{
-          "theta1",
-          "theta2",
-          "theta1dot",
-          "theta2dot",
+          "x",
+          "z",
+          "pitch",
+          "elevator",
+          "xdot",
+          "zdot",
+          "pitchdot",
       });
   return coordinates.access();
 }
 
-}  // namespace acrobot
-}  // namespace examples
-}  // namespace drake
+}  // namespace drake::examples::glider

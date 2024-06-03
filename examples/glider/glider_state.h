@@ -18,16 +18,19 @@
 
 namespace drake::examples::glider {
 
-/// Describes the row indices of a GliderState.
+/// Describes the row indices of a AcrobotState.
 struct GliderStateIndices {
   /// The total number of rows (coordinates).
-  static const int kNumCoordinates = 4;
+  static const int kNumCoordinates = 7;
 
   // The index of each individual coordinate.
-  static const int kTheta1 = 0;
-  static const int kTheta2 = 1;
-  static const int kTheta1dot = 2;
-  static const int kTheta2dot = 3;
+  static const int kX = 0;
+  static const int kZ = 1;
+  static const int kPitch = 2;
+  static const int kElevator = 3;
+  static const int kXdot = 4;
+  static const int kZdot = 5;
+  static const int kPitchdot = 6;
 
   /// Returns a vector containing the names of each coordinate within this
   /// class. The indices within the returned vector matches that of this class.
@@ -36,7 +39,6 @@ struct GliderStateIndices {
   static const std::vector<std::string>& GetCoordinateNames();
 };
 
-/// Specializes BasicVector with specific getters and setters.
 template <typename T>
 class GliderState final : public drake::systems::BasicVector<T> {
  public:
@@ -49,10 +51,13 @@ class GliderState final : public drake::systems::BasicVector<T> {
   /// @arg @c theta1dot defaults to 0.0 rad/s.
   /// @arg @c theta2dot defaults to 0.0 rad/s.
   GliderState() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
-    this->set_theta1(0.0);
-    this->set_theta2(0.0);
-    this->set_theta1dot(0.0);
-    this->set_theta2dot(0.0);
+    this->set_x(0.0);
+    this->set_z(0.0);
+    this->set_pitch(0.0);
+    this->set_elevator(0.0);
+    this->set_xdot(0.0);
+    this->set_zdot(0.0);
+    this->set_pitchdot(0.0);
   }
 
   // Note: It's safe to implement copy and move because this class is final.
@@ -80,105 +85,80 @@ class GliderState final : public drake::systems::BasicVector<T> {
   template <typename U = T>
   typename std::enable_if_t<std::is_same_v<U, symbolic::Expression>>
   SetToNamedVariables() {
-    this->set_theta1(symbolic::Variable("theta1"));
-    this->set_theta2(symbolic::Variable("theta2"));
-    this->set_theta1dot(symbolic::Variable("theta1dot"));
-    this->set_theta2dot(symbolic::Variable("theta2dot"));
+    this->set_x(symbolic::Variable("x"));
+    this->set_z(symbolic::Variable("z"));
+    this->set_pitch(symbolic::Variable("pitch"));
+    this->set_elevator(symbolic::Variable("elevator"));
+    this->set_xdot(symbolic::Variable("xdot"));
+    this->set_zdot(symbolic::Variable("ydot"));
+    this->set_pitchdot(symbolic::Variable("pitchdot"));
   }
 
   [[nodiscard]] GliderState<T>* DoClone() const final {
     return new GliderState;
   }
 
-  /// @name Getters and Setters
-  //@{
-  /// The shoulder joint angle
-  /// @note @c theta1 is expressed in units of rad.
-  const T& theta1() const {
+  const T& x() const {
     ThrowIfEmpty();
-    return this->GetAtIndex(K::kTheta1);
+    return this->GetAtIndex(K::kX);
   }
-  /// Setter that matches theta1().
-  void set_theta1(const T& theta1) {
+  void set_x(const T& x) {
     ThrowIfEmpty();
-    this->SetAtIndex(K::kTheta1, theta1);
+    this->SetAtIndex(K::kX, x);
   }
-  /// Fluent setter that matches theta1().
-  /// Returns a copy of `this` with theta1 set to a new value.
-  [[nodiscard]] GliderState<T> with_theta1(const T& theta1) const {
-    GliderState<T> result(*this);
-    result.set_theta1(theta1);
-    return result;
-  }
-  /// The elbow joint angle
-  /// @note @c theta2 is expressed in units of rad.
-  const T& theta2() const {
-    ThrowIfEmpty();
-    return this->GetAtIndex(K::kTheta2);
-  }
-  /// Setter that matches theta2().
-  void set_theta2(const T& theta2) {
-    ThrowIfEmpty();
-    this->SetAtIndex(K::kTheta2, theta2);
-  }
-  /// Fluent setter that matches theta2().
-  /// Returns a copy of `this` with theta2 set to a new value.
-  [[nodiscard]] GliderState<T> with_theta2(const T& theta2) const {
-    GliderState<T> result(*this);
-    result.set_theta2(theta2);
-    return result;
-  }
-  /// The shoulder joint velocity
-  /// @note @c theta1dot is expressed in units of rad/s.
-  const T& theta1dot() const {
-    ThrowIfEmpty();
-    return this->GetAtIndex(K::kTheta1dot);
-  }
-  /// Setter that matches theta1dot().
-  void set_theta1dot(const T& theta1dot) {
-    ThrowIfEmpty();
-    this->SetAtIndex(K::kTheta1dot, theta1dot);
-  }
-  /// Fluent setter that matches theta1dot().
-  /// Returns a copy of `this` with theta1dot set to a new value.
-  [[nodiscard]] GliderState<T> with_theta1dot(const T& theta1dot) const {
-    GliderState<T> result(*this);
-    result.set_theta1dot(theta1dot);
-    return result;
-  }
-  /// The elbow joint velocity
-  /// @note @c theta2dot is expressed in units of rad/s.
-  const T& theta2dot() const {
-    ThrowIfEmpty();
-    return this->GetAtIndex(K::kTheta2dot);
-  }
-  /// Setter that matches theta2dot().
-  void set_theta2dot(const T& theta2dot) {
-    ThrowIfEmpty();
-    this->SetAtIndex(K::kTheta2dot, theta2dot);
-  }
-  /// Fluent setter that matches theta2dot().
-  /// Returns a copy of `this` with theta2dot set to a new value.
-  [[nodiscard]] GliderState<T> with_theta2dot(const T& theta2dot) const {
-    GliderState<T> result(*this);
-    result.set_theta2dot(theta2dot);
-    return result;
-  }
-  //@}
 
-  /// Visit each field of this named vector, passing them (in order) to the
-  /// given Archive.  The archive can read and/or write to the vector values.
-  /// One common use of Serialize is the //common/yaml tools.
-  template <typename Archive>
-  void Serialize(Archive* a) {
-    T& theta1_ref = this->GetAtIndex(K::kTheta1);
-    a->Visit(drake::MakeNameValue("theta1", &theta1_ref));
-    T& theta2_ref = this->GetAtIndex(K::kTheta2);
-    a->Visit(drake::MakeNameValue("theta2", &theta2_ref));
-    T& theta1dot_ref = this->GetAtIndex(K::kTheta1dot);
-    a->Visit(drake::MakeNameValue("theta1dot", &theta1dot_ref));
-    T& theta2dot_ref = this->GetAtIndex(K::kTheta2dot);
-    a->Visit(drake::MakeNameValue("theta2dot", &theta2dot_ref));
+  const T& z() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kZ);
+  }
+  void set_z(const T& z) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kZ, z);
+  }
+
+  const T& pitch() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPitch);
+  }
+  void set_pitch(const T& pitch) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kPitch, pitch);
+  }
+
+  const T& elevator() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kElevator);
+  }
+  void set_elevator(const T& elevator) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kElevator, elevator);
+  }
+
+  const T& xdot() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kXdot);
+  }
+  void set_xdot(const T& xdot) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kXdot, xdot);
+  }
+
+  const T& zdot() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kZdot);
+  }
+  void set_zdot(const T& zdot) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kZdot, zdot);
+  }
+
+  const T& pitchdot() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPitchdot);
+  }
+  void set_pitchdot(const T& pitchdot) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kPitchdot, pitchdot);
   }
 
   /// See GliderStateIndices::GetCoordinateNames().
@@ -190,10 +170,13 @@ class GliderState final : public drake::systems::BasicVector<T> {
   drake::boolean<T> IsValid() const {
     using std::isnan;
     drake::boolean<T> result{true};
-    result = result && !isnan(theta1());
-    result = result && !isnan(theta2());
-    result = result && !isnan(theta1dot());
-    result = result && !isnan(theta2dot());
+    result = result && !isnan(x());
+    result = result && !isnan(z());
+    result = result && !isnan(pitch());
+    result = result && !isnan(elevator());
+    result = result && !isnan(xdot());
+    result = result && !isnan(zdot());
+    result = result && !isnan(pitchdot());
     return result;
   }
 

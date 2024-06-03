@@ -1,57 +1,25 @@
 #include "drake/examples/glider/glider.h"
 
+#include <cmath>
+
 #include "drake/common/default_scalars.h"
 #include "drake/common/eigen_types.h"
 
+using std::cos;
+using std::sin;
+using std::pow;
+using std::sqrt;
+
 namespace drake::examples::glider {
-
-/// Describes the row indices of a AcrobotState.
-struct GliderStateIndices {
-  /// The total number of rows (coordinates).
-  static const int kNumCoordinates = 7;
-
-  // The index of each individual coordinate.
-  static const int kX = 0;
-  static const int kZ = 1;
-  static const int kPitch = 2;
-  static const int kElevator = 3;
-  static const int kXdot = 4;
-  static const int kZdot = 5;
-  static const int kPitchDot = 6;
-
-  /// Returns a vector containing the names of each coordinate within this
-  /// class. The indices within the returned vector matches that of this class.
-  /// In other words, `GliderStateIndices::GetCoordinateNames()[i]`
-  /// is the name for `BasicVector::GetAtIndex(i)`.
-  static const std::vector<std::string>& GetCoordinateNames();
-};
-
-template <typename T>
-class GliderState final : public drake::systems::BasicVector<T> {
- public:
-  /// An abbreviation for our row index constants.
-  typedef AcrobotStateIndices K;
-
-  GliderState() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
-    T x;
-    T z;
-    T pitch;
-    T elevator;
-    T xdot;
-    T zdot;
-    T pitchdot;
-  }
-}
 
 template <typename T>
 Glider<T>::Glider() : systems::LeafSystem<T>(systems::SystemTypeTag<Glider>{}) {
-
   // one inputs (elevator_velocity)
   this->DeclareVectorInputPort("elevatordot", 1);
   this->DeclareContinuousState(7);
   // seven outputs (full state)
-  this->DeclareVectorOutputPort("state", 7, &Glider::CopyStateOut);
-  this->DeclareVectorOutputPort("forces", 2, &Glider::OutputForces);
+  this->DeclareVectorOutputPort("state", 7, &Glider<T>::CopyStateOut);
+  this->DeclareVectorOutputPort("forces", 2, &Glider<T>::OutputForces);
 
   // parameters based on Rick Cory's "R1 = no dihedral" model.
   this->Sw = 0.0885; //  surface area of wing + fuselage + tail.
@@ -70,23 +38,22 @@ Glider<T>::Glider() : systems::LeafSystem<T>(systems::SystemTypeTag<Glider>{}) {
 }
 
 template <typename T>
-auto Glider::ComputeForces(
+auto Glider<T>::ComputeForces(
     const systems::Context<T>& context) const -> const std::pair<T, T> {
-  const auto s = GliderState(
+  const GliderState<T> s = GliderState<T>(
       context.get_mutable_continuous_state_vector().CopyToVector()
-  )
+  );
 
-  const systems::VectorBase<T>& s = context.get_continuous_state_vector();
   const T elevatordot = this->EvalVectorInput(context, 0)[0];
 
-  const eps = 1e-10;
-  const T xwdot = s.xdot + this->lw * s.pitchdot * std::sin(s.pitch);
-  const T zwdot = s.zdot + this->lw * s.pitchdot * std::cos(s.pitch);
-  const T vw = std::sqrt(zwdot**2 + xwdot**2 + eps);
+  const T eps = 1e-10;
+  const T xwdot = s.xdot + this->lw * s.pitchdot * sin(s.pitch);
+  const T zwdot = s.zdot + this->lw * s.pitchdot * cos(s.pitch);
+  const T vw = sqrt(pow(zwdot, 2) + pow(xwdot, 2) + eps);
   const T fw = (
       -this->rho
       * this->Sw
-      * (std::sin(s.pitch) * xwdot + std::cos(s.pitch) * zwdot)
+      * (sin(s.pitch) * xwdot + cos(s.pitch) * zwdot)
       * vw
   );
 
@@ -94,16 +61,16 @@ auto Glider::ComputeForces(
   const T edot = s.pitchdot + elevatordot;
   const T xedot = (
       s.xdot
-      + this->lh * s.pitchdot * std::sin(s.pitch)
-      + this->le * edot * std::sin(e)
+      + this->lh * s.pitchdot * sin(s.pitch)
+      + this->le * edot * sin(e)
   );
   const T zedot = (
       s.zdot
-      + this->lh * s.pitchdot * std::cos(s.pitch)
-      + this->le * edot * std::cos(e)
+      + this->lh * s.pitchdot * cos(s.pitch)
+      + this->le * edot * cos(e)
   );
-  const T ve = std::sqrt(zedot**2 + xedot**2 + eps);
-  const T fe = -this->rho * this->Se * (std::sin(e) * xedot + std::cos(e) * zedot) * ve;
+  const T ve = sqrt(pow(zedot, 2) + pow(xedot, 2) + eps);
+  const T fe = -this->rho * this->Se * (sin(e) * xedot + cos(e) * zedot) * ve;
 
   return std::make_pair(fw, fe);
 }
@@ -112,9 +79,41 @@ template <typename T>
 void Glider<T>::DoCalcTimeDerivatives(
     const systems::Context<T>& context,
     systems::ContinuousState<T>* derivatives) const {
+  const GliderState<T> s = GliderState<T>(
+      context.get_mutable_continuous_state_vector().CopyToVector()
+  );
+  const T elevatordot = this->EvalVectorInput(context, 0)[0];
+  const T e = s.pitch + s.elevator;
+  const auto [fw, fe] = this->ComputeForces(context);
+
+  GliderState<T> sdot = GliderState(s);
+//  sdot[0:3] = s[4:7]
+//  sdot.elevator = elevatordot
+//  sdot.xdot = (fw * sin(s.pitch) + fe * sin(e)) / this->m
+//  sdot.zdot = (fw * cos(s.pitch) + fe * cos(e)) / this->m - this->gravity
+//  sdot.pitchdot = (
+//      fw * this->lw + fe * (this->lh * cos(s.elevator) + this->le)
+//  ) / this->inertia
+//  derivatives.get_mutable_vector().SetFromVector(sdot);
+}
+
+template <typename T>
+auto Glider<T>::CopyStateOut(
+  const systems::Context<T>& context, GliderState<T> output)
+{
+  const VectorX<T> x = context.get_continuous_state_vector().CopyToVector();
+  output.SetFromVector(x);
+}
+
+template <typename T>
+auto Glider<T>::OutputForces(
+  const systems::Context<T>&context, GliderState<T> output)
+{
+  const auto [fw, fe] = this->ComputeForces(context);
+  output.SetFromVector(Vector2<T>(fw, fe));
 }
 
 }  // namespace drake::examples::glider
-   //
+
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
     class ::drake::examples::glider::Glider)
