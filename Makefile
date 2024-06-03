@@ -47,3 +47,9 @@ format:
 .PHONY: buildifier
 buildifier:
 	bazel-bin/tools/lint/buildifier --all # Reformat all Bazel files.
+
+# Temporary
+################################################################################
+.PHONY: build-glider
+build-glider:
+	bazel build --config=clang //examples/glider
