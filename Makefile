@@ -47,3 +47,11 @@ format:
 .PHONY: buildifier
 buildifier:
 	bazel-bin/tools/lint/buildifier --all # Reformat all Bazel files.
+
+.PHONY: quadrotor
+quadrotor:
+	bazel run //examples/quadrotor:run_quadrotor_dynamics
+
+.PHONY: meshcat-server
+meshcat-server:
+	bazel run //tools:meldis -- -w &
