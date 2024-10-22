@@ -1,6 +1,6 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
-RUN userdel -r ubuntu
+#RUN userdel -r ubuntu # only for ubuntu >= 24.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
