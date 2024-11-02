@@ -1,4 +1,4 @@
-export SHELL:=/bin/fish
+export SHELL:=/bin/bash
 
 export REPO_ROOT := $(shell pwd)
 
