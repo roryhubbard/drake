@@ -42,7 +42,7 @@ tidy:
 
 .PHONY: format
 format:
-	find . \( -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cpp" -o -name "*.cc" \) | xargs clang-format -i -style=file
+	find . \( -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cpp" -o -name "*.cc" \) | xargs clang-format-15 -i -style=file
 
 .PHONY: buildifier
 buildifier:
