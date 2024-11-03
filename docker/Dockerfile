@@ -4,10 +4,6 @@ FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND noninteractive
 
-## drake
-COPY setup/ubuntu/ setup/ubuntu/
-RUN bash setup/ubuntu/install_prereqs.sh -y && rm -rf setup
-
 # Add Docker's official GPG key:
 RUN apt-get update
 RUN apt-get install -y ca-certificates curl
@@ -21,7 +17,7 @@ RUN echo \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-## Docker Outside of Docker
+# Docker Outside of Docker
 RUN apt-get update \
     && apt-get upgrade \
     && apt-get install -y \
@@ -61,6 +57,20 @@ RUN apt-get update \
     llvm \
     python3-clang \
     && apt-get autoremove \
+    && apt-get clean
+
+# drake
+COPY setup/ubuntu/ setup/ubuntu/
+RUN bash setup/ubuntu/install_prereqs.sh -y && rm -rf setup
+
+# Google Chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt-get install -y ./google-chrome-stable_current_amd64.deb \
+    && rm google-chrome-stable_current_amd64.deb
+
+RUN apt-get update \
+    && apt-get autoremove \
+    && apt-get upgrade \
     && apt-get clean
 
 CMD [ "/bin/bash" ]

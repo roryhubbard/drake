@@ -34,7 +34,7 @@ test: build
 
 .PHONY: compile-commands
 compile-commands:
-	bazel run @hedron_compile_commands//:refresh_all
+	bazel run --config=clang @hedron_compile_commands//:refresh_all
 
 .PHONY: tidy
 tidy:
@@ -50,8 +50,8 @@ buildifier:
 
 .PHONY: quadrotor
 quadrotor:
-	bazel run //examples/quadrotor:run_quadrotor_dynamics
+	bazel run --config=clang //examples/quadrotor:run_quadrotor_dynamics
 
 .PHONY: meshcat-server
 meshcat-server:
-	bazel run //tools:meldis -- -w &
+	bazel run --config=clang //tools:meldis -- --open-window &
