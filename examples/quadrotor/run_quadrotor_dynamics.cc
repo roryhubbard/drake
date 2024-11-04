@@ -5,6 +5,8 @@
 /// walls of the warehouse, falling from the initial_height command line
 /// argument.
 
+#include <filesystem>
+#include <fstream>
 #include <gflags/gflags.h>
 
 #include "drake/common/text_logging.h"
@@ -38,8 +40,8 @@ class Quadrotor : public systems::Diagram<T> {
     multibody::Parser parser(&plant);
     parser.AddModelsFromUrl(
         "package://drake_models/skydio_2/quadrotor.urdf");
-    parser.AddModelsFromUrl(
-        "package://drake/examples/quadrotor/warehouse.sdf");
+//    parser.AddModelsFromUrl(
+//        "package://drake/examples/quadrotor/warehouse.sdf");
     plant.Finalize();
     DRAKE_DEMAND(plant.num_actuators() == 0);
     DRAKE_DEMAND(plant.num_positions() == 7);
@@ -67,12 +69,27 @@ class Quadrotor : public systems::Diagram<T> {
   multibody::MultibodyPlant<T>* plant_{};
 };
 
+template <typename T>
+void write_graphviz_file(const systems::Diagram<T>* diagram) {
+  const auto graph_viz_string = diagram->GetGraphvizString();
+  const std::string dot_file_name{"diagram.dot"};
+  std::ofstream out_dot_file(dot_file_name);
+  if (out_dot_file.is_open()) {
+    drake::log()->info("Diagram graph: {}/{}", std::filesystem::current_path().string(), dot_file_name);
+    out_dot_file << graph_viz_string;
+    out_dot_file.close();
+  }
+};
+
 int do_main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   const Quadrotor<double> model;
   auto simulator = MakeSimulatorFromGflags(model);
   simulator->AdvanceTo(FLAGS_duration);
+
+  write_graphviz_file(&model);
+
   return 0;
 }
 

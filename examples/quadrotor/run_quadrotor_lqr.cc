@@ -6,11 +6,14 @@
 /// Use meldis to view the visualization:
 ///   bazel run //tools:meldis -- -w
 
+#include <filesystem>
+#include <fstream>
 #include <memory>
 
 #include <gflags/gflags.h>
 
 #include "drake/common/is_approx_equal_abstol.h"
+#include "drake/common/text_logging.h"
 #include "drake/examples/quadrotor/quadrotor_geometry.h"
 #include "drake/examples/quadrotor/quadrotor_plant.h"
 #include "drake/geometry/drake_visualizer.h"
@@ -33,6 +36,18 @@ using systems::VectorBase;
 namespace examples {
 namespace quadrotor {
 namespace {
+
+template <typename T>
+void write_graphviz_file(const systems::Diagram<T>* diagram) {
+  const auto graph_viz_string = diagram->GetGraphvizString();
+  const std::string dot_file_name{"diagram.dot"};
+  std::ofstream out_dot_file(dot_file_name);
+  if (out_dot_file.is_open()) {
+    drake::log()->info("Diagram graph: {}/{}", std::filesystem::current_path().string(), dot_file_name);
+    out_dot_file << graph_viz_string;
+    out_dot_file.close();
+  }
+};
 
 int do_main() {
   lcm::DrakeLcm lcm;
@@ -58,6 +73,7 @@ int do_main() {
   geometry::DrakeVisualizerd::AddToBuilder(&builder, *scene_graph);
 
   auto diagram = builder.Build();
+  write_graphviz_file(diagram.get());
   Simulator<double> simulator(*diagram);
   VectorX<double> x0 = VectorX<double>::Zero(12);
 

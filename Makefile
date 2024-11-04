@@ -52,7 +52,7 @@ buildifier:
 
 .PHONY: quadrotor
 quadrotor:
-	bazel run --config=clang //examples/quadrotor:run_quadrotor_dynamics
+	bazel run --config=clang //examples/quadrotor:run_quadrotor_lqr
 
 .PHONY: meshcat-server
 meshcat-server:
