@@ -2,12 +2,17 @@ services:
   drake:
     build:
       args:
-        BASE_IMAGE: ubuntu:22.04
+        BASE_IMAGE: ${BASE_IMAGE}
+        HOME: ${HOME}
+        GID: ${GID}
+        UID: ${UID}
+        USERNAME: ${USER}
       context: ..
       dockerfile: docker/Dockerfile
-    image: drake
-    container_name: drake
-    platform: linux/amd64
+    image: ${IMAGE_NAME}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
+    platform: ${PLATFORM}
     deploy:
       resources:
         reservations:
@@ -17,9 +22,13 @@ services:
               capabilities: [compute, utility, graphics, display, gpu]
     runtime: nvidia
     environment:
+      ARCH: ${ARCH}
+      CONAN_USER_HOME: ${HOME}
       DISPLAY: ${DISPLAY}
       HOME: ${HOME}
       NVIDIA_VISIBLE_DEVICES: all
+      PYTHONPATH: ${REPO_ROOT}
+      VIRTUAL_ENV: ${REPO_ROOT}/.cvenv
       QT_XKB_CONFIG_ROOT: /usr/share/X11/xkb
     cap_add:
       - SYS_ADMIN  # for fuse mounting
@@ -44,5 +53,9 @@ services:
       - ${HOME}/.cache:${HOME}/.cache
       # mount repo
       - ..:${REPO_ROOT}
+      - ${REPO_ROOT}/.venv/  # ignore host's venv
+      - ${HOME}/.gitconfig:${HOME}/.gitconfig
+      - ${HOME}/.netrc:${HOME}/.netrc
+      - ${CONAN_USER_HOME}/.conan:${CONAN_USER_HOME}/.conan
     command: docker/mount_perms.sh $USER
     network_mode: host

@@ -1,6 +1,8 @@
 export SHELL:=/bin/bash
 
 export REPO_ROOT := $(shell pwd)
+export GID := $(shell stat -c "%g" .)
+export UID := $(shell stat -c "%u" .)
 
 all: build test compile-commands
 
@@ -55,3 +57,11 @@ quadrotor:
 .PHONY: meshcat-server
 meshcat-server:
 	bazel run --config=clang //tools:meldis -- --open-window &
+
+.PHONY: venv
+venv:
+ifeq (${IN_DOCKER_CONTAINER},1)
+	uv venv .cvenv
+else
+	uv venv
+endif

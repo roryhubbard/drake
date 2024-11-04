@@ -17,5 +17,7 @@ useradd --home-dir ${HOME} \
 	$USERNAME
 
 touch ${HOME}/.sudo_as_admin_successful
+chown --recursive $USERNAME:$USERNAME .venv
+chown --recursive $USERNAME:$USERNAME $HOME
 
 su --login $USERNAME
