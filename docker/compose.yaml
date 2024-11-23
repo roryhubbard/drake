@@ -56,6 +56,6 @@ services:
       - ${REPO_ROOT}/.venv/  # ignore host's venv
       - ${HOME}/.gitconfig:${HOME}/.gitconfig
       - ${HOME}/.netrc:${HOME}/.netrc
-      - ${CONAN_USER_HOME}/.conan:${CONAN_USER_HOME}/.conan
+      - ${CONAN_USER_HOME}/.conan2:${CONAN_USER_HOME}/.conan2
     command: docker/mount_perms.sh $USER
     network_mode: host
